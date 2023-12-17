@@ -1,5 +1,7 @@
 import struct
 import os
+import tkinter as tk
+from tkinter import filedialog, simpledialog
 
 class ISO9660Reader:
     """This class allows us to read ISO9660 files and extract data from those files.
@@ -15,8 +17,8 @@ class ISO9660Reader:
         """Read and return the volume descriptor data at the specified offset."""
         with open(self.iso_path, 'rb') as iso_file:
             iso_file.seek(offset)
-            data = iso_file.read(struct.calcsize('>BB5s32sIHHHB32xQH'))
-            descriptor = struct.unpack('>BB5s32sIHHHB32xQH', data)
+            raw_data = iso_file.read(struct.calcsize('>BB5s32sIHHHB32xQH'))
+            descriptor = struct.unpack('>BB5s32sIHHHB32xQH', raw_data)
             return descriptor
 
     def parse_volume_descriptor(self):
@@ -37,8 +39,8 @@ class ISO9660Reader:
         """Read and return the directory record data at the specified offset."""
         with open(self.iso_path, 'rb') as iso_file:
             iso_file.seek(offset)
-            data = iso_file.read(struct.calcsize('>BBB7sII7sBB32s'))
-            record = struct.unpack('>BBB7sII7sBB32s', data)
+            raw_data = iso_file.read(struct.calcsize('>BBB7sII7sBB32s'))
+            record = struct.unpack('>BBB7sII7sBB32s', raw_data)
             return record
 
     def parse_directory(self, extent):
@@ -115,26 +117,33 @@ class ISO9660Reader:
                     print(f"\nFile '{output_file_path}' extracted successfully.")
                     return
         print("Error: There is no such a file", path)
-
-
 if __name__ == "__main__":
-    iso_path = "C:\\Users\\pc\\PycharmProjects\\ISOFileReader\\file.iso" # Path of the iso file
-    print("Current Working Directory:", os.getcwd())
-    print("File exists:", os.path.exists(iso_path))  # Check if the file exists
+    # Create a simple Tkinter GUI for selecting the ISO file
+    root = tk.Tk()
+    root.withdraw()  # Hide the main window
 
-    # Enter ISO path to the constructor
-    iso_reader = ISO9660Reader(iso_path)
-    print("ISO Path is", iso_reader.iso_path)
+    # Prompt the user to select an ISO file
+    iso_path = filedialog.askopenfilename(title="Select ISO File", filetypes=[("ISO Files", "*.iso")])
 
-    # List all contents
-    iso_reader.list_contents()
+    if not iso_path:
+        print("No file selected. Exiting.")
+    else:
+        print("Selected ISO Path:", iso_path)
 
-    # User should choose any path to list contents for the following code lines:
-    iso_reader.list_contents("enter your path")
+        # Create an instance of ISO9660Reader with the selected ISO path
+        iso_reader = ISO9660Reader(iso_path)
 
-    # Extract a file from the ISO to the given directory or path
-    iso_reader.extract_file("enter your path") 
+        # List all contents
+        iso_reader.list_contents()
 
-    """"
-While writing this code, I referenced resources and documentation on the internet and also used AI tools.
-    """
+        # Prompt the user to select a specific path for listing contents
+        path_for_listing = simpledialog.askstring("Enter Path for Listing", "Enter a path (or leave blank for root):")
+
+        if path_for_listing:
+            iso_reader.list_contents(path_for_listing)
+
+        # Prompt the user to select a file path for extraction
+        file_for_extraction = simpledialog.askstring("Enter File Path for Extraction", "Enter a file path for extraction:")
+
+        if file_for_extraction:
+            iso_reader.extract_file(file_for_extraction)
