@@ -1,6 +1,7 @@
 import struct
 import os
 
+
 class ISO9660Reader:
     """This class allows us to read ISO9660 files and extract data from those files.
     Users should enter a path to use it."""
@@ -15,8 +16,8 @@ class ISO9660Reader:
         """Read and return the volume descriptor data at the specified offset."""
         with open(self.iso_path, 'rb') as iso_file:
             iso_file.seek(offset)
-            data = iso_file.read(struct.calcsize('>BB5s32sIHHHB32xQH'))
-            descriptor = struct.unpack('>BB5s32sIHHHB32xQH', data)
+            raw_data = iso_file.read(struct.calcsize('>BB5s32sIHHHB32xQH'))
+            descriptor = struct.unpack('>BB5s32sIHHHB32xQH', raw_data)
             return descriptor
 
     def parse_volume_descriptor(self):
@@ -37,8 +38,8 @@ class ISO9660Reader:
         """Read and return the directory record data at the specified offset."""
         with open(self.iso_path, 'rb') as iso_file:
             iso_file.seek(offset)
-            data = iso_file.read(struct.calcsize('>BBB7sII7sBB32s'))
-            record = struct.unpack('>BBB7sII7sBB32s', data)
+            raw_data = iso_file.read(struct.calcsize('>BBB7sII7sBB32s'))
+            record = struct.unpack('>BBB7sII7sBB32s', raw_data)
             return record
 
     def parse_directory(self, extent):
@@ -118,7 +119,7 @@ class ISO9660Reader:
 
 
 if __name__ == "__main__":
-    iso_path = "C:\\Users\\pc\\PycharmProjects\\ISOFileReader\\file.iso" # Path of the iso file
+    iso_path = "C:\\Users\\pc\\PycharmProjects\\ISOFileReader\\file.iso"
     print("Current Working Directory:", os.getcwd())
     print("File exists:", os.path.exists(iso_path))  # Check if the file exists
 
@@ -133,8 +134,4 @@ if __name__ == "__main__":
     iso_reader.list_contents("enter your path")
 
     # Extract a file from the ISO to the given directory or path
-    iso_reader.extract_file("enter your path") 
-
-    """"
-While writing this code, I referenced resources and documentation on the internet and also used AI tools.
-    """
+    iso_reader.extract_file("enter your path")
