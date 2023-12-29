@@ -24,7 +24,7 @@ The ISO9660Reader class in this project allows users to interact with ISO9660 fi
 Clone the repository to your local machine:
 
 ```bash
-git clone https://github.com/your-username/ISOFileReader.git
+git clone https://github.com/uurktk/ISO9960FileReaderSystem.git
 cd ISOFileReader
 ```
 ### Acknowledgments
